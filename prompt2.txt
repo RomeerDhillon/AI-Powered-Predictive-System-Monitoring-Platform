@@ -1,0 +1,114 @@
+You are an expert AI systems architect and full-stack developer.  
+Create an **AI-powered predictive system monitoring platform** that forecasts failures *before they occur*.  
+This is not just traditional observability — it should **analyze patterns in logs, performance metrics, and user behavior** to flag potential issues hours or days in advance, and make these predictions clear and actionable for engineers.
+
+---
+
+## 🎯 System Goal
+Develop a production-grade, real-time monitoring platform that:
+- Collects and processes massive streams of system telemetry (logs, metrics, traces, user activity).
+- Uses machine learning to predict potential system failures or degradations in advance.
+- Displays predictions and explanations through an intuitive, live dashboard.
+- Generates *actionable* alerts (e.g., “Database likely to hit connection limit in 3 hours based on traffic trends”).
+- Scales to handle large log volumes with minimal latency (<1 second per inference loop).
+
+---
+
+## 🧩 Core Functionalities
+
+### 1. Data Ingestion & Processing
+- Stream and batch ingestion for logs, metrics, traces (via Kafka, Fluentd, or OpenTelemetry).
+- Real-time feature computation (sliding windows, rate changes, moving averages, seasonality).
+- Support high-throughput event pipelines capable of handling millions of events/hour.
+
+### 2. Predictive AI Engine
+- Machine learning for **time-series forecasting and anomaly detection**.
+- Models: Isolation Forest, LSTM Autoencoder, Prophet, or TCNs (Temporal Convolutional Networks).
+- Predict **what will fail, when, and why** — not just that an anomaly exists.
+- Use historical incident data to fine-tune predictive thresholds.
+- Explain predictions (e.g., “High DB latency correlated with increased user request spikes”).
+
+### 3. Dashboards & Visualization
+- Live, web-based dashboard (React + Tailwind + Chart.js or Grafana).
+- Show:
+  - Current system health.
+  - AI-predicted risks and estimated time-to-failure.
+  - Feature attribution (why the prediction happened).
+  - Timeline of past anomalies and their resolutions.
+- Include a feedback system (engineers can confirm or dismiss AI predictions).
+
+### 4. Alerts & Actions
+- Intelligent alerting:
+  - Send alerts via Slack, email, or PagerDuty.
+  - Group correlated anomalies into one incident.
+  - Include recommended actions (e.g., “Scale read replicas” or “Increase DB pool size”).
+- Severity levels (info, warning, critical) based on confidence and potential impact.
+
+### 5. Scalability & Infrastructure
+- Message Broker: Kafka (for high-throughput data).
+- Stream Processor: Faust or Spark Structured Streaming.
+- AI Inference: FastAPI microservice or integrated model-serving (TorchServe or ONNX).
+- Databases:
+  - Metrics: InfluxDB or TimescaleDB.
+  - Logs: Elasticsearch or Loki.
+  - Metadata: PostgreSQL.
+- Containerized via Docker + `docker-compose`.
+
+### 6. Model Lifecycle
+- Retraining pipeline with historical data.
+- Model registry (MLflow).
+- Drift detection (detect if model accuracy degrades).
+- Shadow mode to test new models before production.
+
+---
+
+## 📁 Project Structure
+/predictive-monitoring-platform
+/data_ingestion/
+/feature_processor/
+/ai_engine/
+/dashboard/
+/alert_service/
+/model_training/
+docker-compose.yml
+README.md
+
+
+
+---
+
+## ⚙️ Implementation Details
+- Use **Python** for backend services (FastAPI + Kafka + scikit-learn/PyTorch).
+- Use **React + TailwindCSS** for dashboards.
+- Include sample data simulators for metrics and logs.
+- Include AI explainability (SHAP or feature importances).
+- Keep configurations in `.env`.
+- Log all predictions, errors, and alert decisions.
+- Provide full setup instructions in `README.md`.
+
+---
+
+## 🧠 Example Predictions
+- “Memory consumption increasing 4% per hour. Service X likely to exceed container limit in ~3.2 hours.”
+- “Database connection pool utilization at 85% and rising. Expect saturation within 2 hours.”
+- “Error rate spike predicted due to correlated user load and slow response time.”
+
+---
+
+## 🧱 Deliverables
+- Fully working backend (data → AI → alerts).
+- Frontend dashboard visualizing predictions and metrics.
+- AI pipeline with training and inference examples.
+- Docker-compose setup to run entire stack locally.
+- Documentation describing data flow, model logic, and deployment instructions.
+
+---
+
+## 💡 Output Format
+Generate:
+1. A brief explanation of the architecture.
+2. The entire codebase (all files with content).
+3. Docker-compose orchestration.
+4. Example scripts to simulate load and trigger predictions.
+
+Begin by generating the `docker-compose.yml` and scaffolding the main services.

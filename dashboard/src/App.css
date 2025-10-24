@@ -1,0 +1,74 @@
+/* Additional custom styles for the dashboard */
+
+.dashboard-card {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 1px solid #475569;
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.anomaly-indicator {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.status-healthy {
+  background-color: #10b981;
+}
+
+.status-warning {
+  background-color: #f59e0b;
+}
+
+.status-critical {
+  background-color: #ef4444;
+  animation: pulse 1s infinite;
+}
+
+.metric-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+}
+
+/* Custom scrollbar for alerts */
+.alerts-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.alerts-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.alerts-container::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.alerts-container::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 3px;
+}

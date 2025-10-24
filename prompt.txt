@@ -1,0 +1,82 @@
+You are an expert AI systems architect and full-stack developer.  
+Create a **real-time system monitoring platform with AI predictions** that detects and alerts on anomalies or failures before they occur.  
+
+**Project Goal:**
+Design and implement an end-to-end real-time monitoring and prediction system using streaming data, AI inference, and visualization.
+
+---
+
+### ✅ Requirements:
+
+**1. Core Features**
+- Real-time ingestion of metrics (CPU, memory, latency, etc.).
+- Stream processing and feature computation (rolling averages, standard deviation, deltas).
+- AI prediction pipeline that runs anomaly detection in real-time.
+- Dashboard with live metrics and prediction scores.
+- Alerting system (Slack/email/console logs) when anomalies are detected.
+- Retraining module for model updates (batch/offline).
+- Historical data storage for training and analysis.
+
+**2. Tech Stack (preferred)**
+- **Backend / Stream Processing:** Python (FastAPI + Kafka + Faust or Spark Streaming)
+- **AI/ML:** scikit-learn or PyTorch (Isolation Forest, LSTM Autoencoder, or Prophet)
+- **Database:** InfluxDB or TimescaleDB for metrics, PostgreSQL for metadata
+- **Message Broker:** Kafka
+- **Frontend:** React + Tailwind + Chart.js (or Grafana integration)
+- **Containerization:** Docker (with docker-compose)
+- **Deployment:** local dev-friendly setup
+
+**3. Architecture**
+Design a modular architecture:
+- `ingestion_service` → collects metrics and pushes to Kafka
+- `stream_processor` → aggregates & computes features
+- `ai_predictor` → loads model, performs inference on stream
+- `dashboard` → displays metrics, predictions, and alerts
+- `alert_service` → sends notifications
+- `model_trainer` → retrains models periodically and updates model store
+
+Include a `docker-compose.yml` to orchestrate Kafka, backend services, and databases.
+
+**4. AI Model Requirements**
+- Start with an **Isolation Forest** for anomaly detection.
+- Store model in a serialized format (`.pkl` or `.onnx`).
+- Allow configurable threshold for anomaly detection.
+- Add online learning placeholder for future model upgrades.
+
+**5. Code Structure**
+Organize the repo as:
+/project-root
+/ingestion_service
+/stream_processor
+/ai_predictor
+/dashboard
+/alert_service
+/model_trainer
+docker-compose.yml
+README.md
+
+**6. Deliverables**
+- Full backend code for ingestion, stream processing, and inference.
+- Example Kafka producer simulating metrics.
+- Frontend dashboard (React or Grafana setup) visualizing real-time metrics and anomaly predictions.
+- Documentation (`README.md`) describing setup, how data flows, and how to extend models.
+- Instructions for adding new metrics or model types.
+
+---
+
+### ⚙️ Implementation Notes
+- Keep latency <1 second for stream → prediction → alert loop.
+- Use environment variables for config (Kafka topics, thresholds, DB URIs).
+- Code should be production-quality: modular, well-commented, easy to extend.
+- Include example `.env` and sample metric simulator.
+
+---
+
+### 💡 Output Format
+Generate the **entire project structure with code files** (not just explanations).  
+Each file should be fully implemented and runnable after `docker-compose up`.  
+Start with `docker-compose.yml`, then generate each module’s code in sequence.
+
+---
+
+Begin by creating a **project scaffold** and high-level explanation, then generate all code files step by step.

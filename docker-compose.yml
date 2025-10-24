@@ -1,0 +1,167 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=monitoring
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=admin123
+      - INFLUXDB_USER=user
+      - INFLUXDB_USER_PASSWORD=user123
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: monitoring
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  data_ingestion:
+    build: ./data_ingestion
+    container_name: data_ingestion
+    ports:
+      - "8002:8002"
+    depends_on:
+      - kafka
+      - influxdb
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=BDv16KKlG74XAzElCElhaYYuf_d3hTOM8TPD_dg4B4SstE8kH2qEe_Cb2vhDY3NTElsIcsvzrPVLAqoVJLkeHA==
+      - INFLUXDB_ORG=my-org
+      - INFLUXDB_BUCKET=metrics
+    volumes:
+      - ./data_ingestion:/app
+    command: python app.py
+
+  stream_processor:
+    build: ./stream_processor
+    container_name: stream_processor
+    depends_on:
+      - kafka
+      - influxdb
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=BDv16KKlG74XAzElCElhaYYuf_d3hTOM8TPD_dg4B4SstE8kH2qEe_Cb2vhDY3NTElsIcsvzrPVLAqoVJLkeHA==
+      - INFLUXDB_ORG=my-org
+      - INFLUXDB_BUCKET=metrics
+    volumes:
+      - ./stream_processor:/app
+    command: python app.py
+
+  ai_engine:
+    build: ./ai_engine
+    container_name: ai_engine
+    depends_on:
+      - kafka
+      - influxdb
+      - postgres
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=BDv16KKlG74XAzElCElhaYYuf_d3hTOM8TPD_dg4B4SstE8kH2qEe_Cb2vhDY3NTElsIcsvzrPVLAqoVJLkeHA==
+      - INFLUXDB_ORG=my-org
+      - INFLUXDB_BUCKET=metrics
+      - POSTGRES_URL=postgresql://admin:admin123@postgres:5432/monitoring
+    volumes:
+      - ./ai_engine:/app
+      - ./models:/app/models
+    command: python app.py
+
+  dashboard:
+    build: ./dashboard
+    container_name: dashboard
+    ports:
+      - "3000:3000"
+    depends_on:
+      - influxdb
+      - postgres
+    environment:
+      - REACT_APP_INFLUXDB_URL=http://localhost:8086
+      - REACT_APP_POSTGRES_URL=postgresql://admin:admin123@postgres:5432/monitoring
+    volumes:
+      - ./dashboard:/app
+      - /app/node_modules
+    command: npm start
+
+  alert_service:
+    build: ./alert_service
+    container_name: alert_service
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - POSTGRES_URL=postgresql://admin:admin123@postgres:5432/monitoring
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+      - EMAIL_SMTP_HOST=${EMAIL_SMTP_HOST:-}
+      - EMAIL_SMTP_PORT=${EMAIL_SMTP_PORT:-}
+      - EMAIL_USER=${EMAIL_USER:-}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD:-}
+    volumes:
+      - ./alert_service:/app
+    command: python app.py
+
+  model_trainer:
+    build: ./model_trainer
+    container_name: model_trainer
+    depends_on:
+      - influxdb
+      - postgres
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=BDv16KKlG74XAzElCElhaYYuf_d3hTOM8TPD_dg4B4SstE8kH2qEe_Cb2vhDY3NTElsIcsvzrPVLAqoVJLkeHA==
+      - INFLUXDB_ORG=my-org
+      - INFLUXDB_BUCKET=metrics
+      - POSTGRES_URL=postgresql://admin:admin123@postgres:5432/monitoring
+    volumes:
+      - ./model_trainer:/app
+      - ./models:/app/models
+    command: python app.py
+
+volumes:
+  influxdb_data:
+  influxdb_config:
+  postgres_data:
